@@ -12,7 +12,7 @@ Status values: Not started / In progress / Reported, awaiting commit / Done / De
 | 2 | Students page and StudentCard | Done | `cfef8df` | 5 |
 | 3 | Courses page and CourseCard | Done | `cc2bcf4` | 14 |
 | 4 | Home and About content | Done | `9f69976` | 5 |
-| 5A | Visual redesign: design system | Reported, awaiting commit | - | 7 |
+| 5A | Visual redesign: design system | Done | `524d722` | 7 |
 | 5B | Visual redesign: cards and page compositions | Not started | - | - |
 | 6 | Cleanup and final verification | Not started | - | - |
 | 7 | Route smoke test (optional) | Deferred | - | - |
@@ -35,7 +35,6 @@ Slice 5B, cards and page compositions.
 
 ## Open items
 
-- Slice 5A is reported but not committed: its seven changed files are still in the working tree.
 - Slice 5A About list defect, found in the user browser check and fixed inside the same slice. `.page__list li`
   was a grid container, which blockifies its inline children, so each item of the section headed "What you can
   do here" became three boxes and the description text was placed in the 40px counter column. `src/index.css`
