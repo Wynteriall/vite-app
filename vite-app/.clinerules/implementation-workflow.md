@@ -3,7 +3,7 @@
 Project: Student Information Portal (React routing and reusable JSX lab).
 
 ## 1. Slice discipline
-- Read `docs/IMPLEMENTATION_PLAN.md` before editing anything.
+- Read `docs/PROGRESS.md` and `docs/IMPLEMENTATION_PLAN.md` before editing anything.
 - Implement exactly one slice per turn, then stop and wait for approval.
 - State the slice name and the exact list of files to add, change or delete before editing.
 - Do not touch files outside that list during the same slice.
@@ -25,7 +25,8 @@ Project: Student Information Portal (React routing and reusable JSX lab).
 ## 3. Definition of done for a slice
 - `npm run lint` passes with no output.
 - `npm run build` succeeds.
-- Docs are updated inside the same slice, not in a follow-up.
+- The slice's row in `docs/PROGRESS.md` is filled in, and the next slice's file list is updated if the
+  next slice changed. No other doc is required inside a slice.
 
 ## 4. Report format after every slice
 Plain text headings, no emojis:
@@ -36,14 +37,23 @@ Files: added / changed / deleted
 What changed and why: reasoning, not a diff dump
 Verified: exact commands run and the observed result
 Not verified: anything only the user can confirm visually
-Docs updated: files and sections
+Tracker: row updated in docs/PROGRESS.md
 Deviations: differences from the plan, or none
 Next: next slice and anything blocked on the user
 ```
 
 ## 5. Doc map
-- Slice status change -> `docs/IMPLEMENTATION_PLAN.md` status table.
-- Completed slice -> append an entry to `docs/SLICE_LOG.md`.
-- Route, prop, folder or script change -> `README.md`, in the same slice that makes the change. The
-  README is declared in that slice's file list so rule 1 still holds. Slice 6 keeps the full README
-  rewrite as final polish, so a slice may add to the README before that rewrite happens.
+
+One mutable doc, two reference files. Do not grow this list.
+
+- `docs/PROGRESS.md` is the progress tracker and the only doc written per slice: one row per slice, the
+  declared file list for the next slice, and the open items. The commit hash is added after the commit.
+- `docs/IMPLEMENTATION_PLAN.md` is reference material: rubric map, routes, component contracts, the
+  constraints that still shape the code, verification and change control. Edit it only when one of those
+  facts is wrong or actually changes, never for status.
+
+  Status tables, historical decision rows and per-slice file lists were removed from the plan, and
+  `docs/SLICE_LOG.md` was deleted, because both duplicated the tracker and the tracker was the only part
+  that was ever read. Slice history is `git log`; slice reasoning is the slice report in the chat.
+- `README.md` is the submission's front page. Update it in the same slice only when that slice changes a
+  route, a prop, the folder layout or a script, so it never contradicts the code. Otherwise leave it alone.
