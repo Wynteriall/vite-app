@@ -81,6 +81,15 @@ a {
   color: var(--accent-text);
 }
 
+/*
+ * One focus ring for every link in the app, instead of the same rule repeated in
+ * Navbar.css and in the card stylesheet.
+ */
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .page {
   flex: 1;
   width: 100%;
@@ -93,6 +102,17 @@ a {
   max-width: 62ch;
   margin-bottom: 24px;
   font-size: 1.0625rem;
+}
+
+/*
+ * Card list shared by the Students, Courses and Home pages. auto-fill fits as many
+ * 280px columns as the viewport allows and drops to a single column when there is
+ * no room for two, so no media query is needed.
+ */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
 }
 
 @media (max-width: 640px) {

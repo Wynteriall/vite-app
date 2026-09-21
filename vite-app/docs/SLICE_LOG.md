@@ -141,7 +141,7 @@ confirmation of the router choice.
 Date: 2026-09-21
 Status: done
 
-Commit: filled in when the user approves the commit
+Commit: cfef8df
 
 Files added (4):
 - `src/data/students.js`
@@ -220,3 +220,98 @@ Next: Slice 3 (`src/data/courses.js`, `src/components/CourseCard.jsx`, `src/comp
 `src/pages/Courses.jsx`, `src/pages/Courses.css`). Blocked on commit approval for Slice 2. The working
 plan for the grid is to repeat the rule in `Courses.css` so each page owns its layout, then let Slice 5
 consolidate both into one shared grid once the Home page needs it too.
+
+## Slice 3 - Courses page and CourseCard
+
+Date: 2026-09-21
+Status: done
+
+Commit: pending approval
+
+Files added (4):
+- `src/data/courses.js`
+- `src/components/Card.jsx`
+- `src/components/Card.css`
+- `src/components/CourseCard.jsx`
+
+Files changed (8):
+- `src/pages/Courses.jsx`
+- `src/pages/Students.jsx`
+- `src/components/StudentCard.jsx`
+- `src/components/Navbar.css`
+- `src/index.css`
+- `README.md`
+- `docs/IMPLEMENTATION_PLAN.md`
+- `docs/SLICE_LOG.md`
+
+Files deleted (2):
+- `src/components/StudentCard.css`
+- `src/pages/Students.css`
+
+Why the declared slice changed before any edit:
+- The Slice 2 note told this slice to repeat the card CSS and the page grid. The user directed that no
+  code be duplicated, so the files were re-planned and approved first, under rule 1. The card shell
+  became one shared `Card` component and the card list became one shared `.card-grid` rule, which is why
+  Slice 2 files are edited here and why `src/pages/Courses.css` was never created even though the
+  original note listed it.
+
+What changed and why:
+- `Card.jsx` and `Card.css` now own the card markup and the card look once. `Card` takes `title`, `meta`
+  and `rows`, where `rows` is an array of `{ label, value }` and a value may be a string, a number or a
+  node. That last point is what lets `StudentCard` keep its `mailto:` anchor without the shell knowing
+  anything about students. Rows are keyed by `label`, which is unique inside one card, so the stable-key
+  rule is satisfied inside the shell instead of at every call site.
+- `StudentCard.jsx` lost its markup and its stylesheet import. It is now a thin wrapper that maps one
+  record onto the shared field list and keeps all six prop defaults, so its public contract did not
+  change for the already shipped Students page.
+- `CourseCard.jsx` is the same shape for the course contract. `code` becomes the meta line and `units`
+  is passed through as a number, so the card performs no formatting the data does not need.
+- `courses.js` holds four records and documents that `code` is unique, because a course record has no
+   separate id field and the Courses page uses `key={course.code}`. It lives outside the page for the
+  same reason as `students.js`: the eslint react-refresh rule rejects a file that exports a component
+  and also exports plain data.
+- `Courses.jsx` maps the records once and reuses the shared grid, replacing the Slice 1 placeholder.
+- `Students.jsx` switched to `card-grid` and dropped its stylesheet import, which is what removes the
+  second copy of the grid rule.
+- `index.css` gained `.card-grid` next to the existing `.page` helpers, plus one shared
+  `a:focus-visible` ring.
+- `Navbar.css` lost its `:focus-visible` block, which was the rule that would otherwise have been
+  repeated in the card stylesheet.
+- The two deleted files are superseded: `StudentCard.css` by `Card.css`, `Students.css` by the shared
+  grid. Nothing imports either path now.
+
+Verified:
+- `node .\node_modules\eslint\bin\eslint.js .` -> exit code 0, no output.
+- `node .\node_modules\vite\bin\vite.js build` -> 38 modules transformed (up from 36), built in 463ms,
+  `dist/assets/index-C_IAZ7ez.css` 3.09 kB (down from 3.26 kB, the de-duplicated card CSS),
+  `dist/assets/index-MkKaOd8K.js` 265.79 kB.
+- Built bundle inspected directly: the JS chunk contains `Data Structures and Algorithms`,
+  `Database Management Systems`, `Prof. R. Aquino` and the `card-grid` class name, so the new data is
+  genuinely reachable from the page. That chunk no longer contains `student-card` or `course-card`, and
+  the CSS chunk contains `.card-grid`, `.card__row`, `.card__meta`, `.card__title` and
+  `a:focus-visible` while `.student-card` and `.students-grid` are gone. That is the direct evidence
+  that the duplicated markup and CSS were removed rather than renamed.
+- `vite preview --port 5211 --strictPort` returned HTTP 200 for `/`, `/students`, `/courses`, `/about`
+  and `/nope`. The server was stopped and `Get-NetTCPConnection -LocalPort 5211` then reported 0
+  listeners.
+- All added and changed files were checked for non-ASCII bytes and for carriage returns: none found.
+
+Not verified:
+- No card has ever been rendered in a browser. Lint, build and bundle inspection cannot prove that four
+  course cards appear, that the shared grid lays them out in columns, or that the 640px stack reads
+  well.
+- The single focus ring is confirmed present in the CSS chunk, not confirmed on screen.
+- `/nope` still answers 200, so an unmatched URL renders the navbar with an empty `main`. That remains
+  the open catch-all decision.
+
+Deviations:
+- This slice is larger than the plan structure implied: it adds a shared `Card` component, edits three
+  Slice 2 files and deletes two of them. All of it was declared and approved before editing, and it is
+  the direct consequence of the no-duplication directive.
+- `src/pages/Courses.css` was planned and is deliberately not created.
+- The plan structure block and the Slice 5 exit criteria were rewritten in this slice, because the
+  extraction Slice 5 was scheduled to perform now exists.
+- `Commit:` above is filled in once the user approves the commit, the order Slices 1 and 2 used.
+
+Next: Slice 4 (Home and About content), where Home reuses both cards and the cards become provably
+reusable across pages rather than only within one page. Blocked on commit approval for Slice 3.

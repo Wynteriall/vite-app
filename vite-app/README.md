@@ -34,14 +34,47 @@ rule, would not.
 
 | Path | Contents |
 | --- | --- |
-| `src/components/` | Reusable UI: `Navbar`, `StudentCard` |
+| `src/components/` | Reusable UI: `Navbar`, `Card`, `StudentCard`, `CourseCard` |
 | `src/pages/` | One component per route |
-| `src/data/` | Plain data modules, no JSX |
-| `src/index.css` | Design tokens, base typography, page container |
+| `src/data/` | Plain data modules, no JSX: `students.js`, `courses.js` |
+| `src/index.css` | Design tokens, base typography, page container, shared card grid and focus ring |
 | `docs/` | Implementation plan and slice log |
 
-CSS is colocated with the file that uses it: `StudentCard.jsx` imports `StudentCard.css`, and
-`Students.jsx` imports `Students.css` for its card grid.
+## Components
+
+| Component | Role |
+| --- | --- |
+| `Navbar` | `NavLink` list built from one array, one entry per route |
+| `Card` | Shared card shell: title, meta line, labelled value rows |
+| `StudentCard` | Maps one student record onto `Card` |
+| `CourseCard` | Maps one course record onto `Card` |
+
+`StudentCard` and `CourseCard` hold no markup and no CSS of their own. Each owns only the field list
+for its record type and hands it to `Card`, so no card code and no card styling is duplicated.
+
+## Styling
+
+Styling is plain CSS, and each rule lives in exactly one place:
+
+| File | Owns |
+| --- | --- |
+| `src/index.css` | Tokens, base typography, `.page` container, `.card-grid`, `a:focus-visible` |
+| `src/components/Navbar.css` | Header, brand, nav links, active pill |
+| `src/components/Card.css` | The card shell, shared by both cards |
+
+No page carries a stylesheet. The card list is the single `.card-grid` rule in `src/index.css`, so
+the Students, Courses and Home pages get the same responsive grid without copying it.
+
+### `Card`
+
+| Prop | Type | Example |
+| --- | --- | --- |
+| `title` | string | `Juan Dela Cruz` |
+| `meta` | string | `2023-00187` |
+| `rows` | `{ label, value }[]` | `[{ label: 'Program', value: 'BS Computer Science' }]` |
+
+`value` may be a string, a number or a node, so `StudentCard` passes its `mailto:` anchor through
+unchanged. Rows are keyed by `label`, which is unique inside one card.
 
 ## Component props
 
@@ -57,9 +90,25 @@ by spreading it: `<StudentCard key={student.id} {...student} />`.
 | `email` | string | `juan.delacruz@example.edu` |
 | `gpa` | number | `1.75` |
 
-Every prop is destructured with a JSX default. `propTypes` and `defaultProps` are deliberately not
-used because React 19 ignores both for function components. Records live in `src/data/students.js`
-as an array of objects with the shape above.
+`CourseCard` (`src/components/CourseCard.jsx`) renders one course record, spread the same way:
+`<CourseCard key={course.code} {...course} />`.
+
+| Prop | Type | Example |
+| --- | --- | --- |
+| `code` | string | `CS 301` |
+| `title` | string | `Data Structures and Algorithms` |
+| `instructor` | string | `Prof. A. Reyes` |
+| `units` | number | `3` |
+| `schedule` | string | `MWF 9:00-10:00 AM` |
+| `room` | string | `Lab 204` |
+
+Every prop in all three components is destructured with a JSX default. `propTypes` and
+`defaultProps` are deliberately not used because React 19 ignores both for function components.
+
+Records live in `src/data/students.js` and `src/data/courses.js`. The `key` is the record `id` for
+students and the course `code` for courses, because a course record has no separate id field. The
+data sits outside the pages because the eslint `react-refresh` rule rejects a file that exports a
+component and also exports plain data, and because the Home page reads the same records.
 
 ## Tooling
 
@@ -68,7 +117,7 @@ Plugins registered in `vite.config.js`:
 - `@vitejs/plugin-react`, which uses [Oxc](https://oxc.rs)
 - `@tailwindcss/vite`. Tailwind is installed and its plugin is registered, but `src/index.css` never
   imports `tailwindcss`, so no Tailwind utility class currently has any effect. Styling is plain CSS
-  colocated per component and page.
+  colocated per component.
 - `@rolldown/plugin-babel` with `reactCompilerPreset()`, so the React Compiler is active. See
   [this documentation](https://react.dev/learn/react-compiler) for more information.
 

@@ -10,11 +10,11 @@ Git root: C:\Users\CCL305\Documents\Lopez-React (one level above the workspace)
 | --- | --- | --- | --- |
 | 1 | Separate component and pages folders in src | `src/components/`, `src/pages/` | 1 |
 | 2 | Reusable Navbar linking Home, Students, Courses, About | `src/components/Navbar.jsx` using `NavLink` | 1 |
-| 3 | Reusable StudentCard and CourseCard | `StudentCard.jsx`, `CourseCard.jsx` in `src/components/` | 2, 3 |
+| 3 | Reusable StudentCard and CourseCard | `StudentCard.jsx`, `CourseCard.jsx` in `src/components/`, both rendering the shared `Card.jsx` | 2, 3 |
 | 4 | Pages for Home, Students, Courses, About | `src/pages/*.jsx` | 1 (stubs), 4 (content) |
 | 5 | React Router configured per URL path | `src/App.jsx` | 1 |
 | 6 | Cards used multiple times on their own path | `src/data/*.js` mapped over in each page | 2, 3, 4 |
-| 7 | Basic styling for nav, pages, cards | CSS colocated per component and page | 1-5 |
+| 7 | Basic styling for nav, pages, cards | Colocated CSS per component, plus one shared `.card-grid` and focus ring in `src/index.css` | 1-5 |
 
 ## 2. Verified baseline (checked at Slice 0)
 
@@ -62,25 +62,25 @@ vite-app/
 |   `-- SLICE_LOG.md
 |-- src/
 |   |-- components/
-|   |   |-- Navbar.jsx       + Navbar.css
-|   |   |-- StudentCard.jsx  + StudentCard.css
-|   |   `-- CourseCard.jsx   + CourseCard.css
+|   |   |-- Navbar.jsx      + Navbar.css
+|   |   |-- Card.jsx        + Card.css   (shared card shell)
+|   |   |-- StudentCard.jsx (maps a student record onto Card)
+|   |   `-- CourseCard.jsx  (maps a course record onto Card)
 |   |-- pages/
-|   |   |-- Home.jsx     + Home.css
-|   |   |-- Students.jsx + Students.css
-|   |   |-- Courses.jsx  + Courses.css
-|   |   `-- About.jsx    + About.css
+|   |   |-- Home.jsx
+|   |   |-- Students.jsx
+|   |   |-- Courses.jsx
+|   |   `-- About.jsx
 |   |-- data/
 |   |   |-- students.js
 |   |   `-- courses.js
 |   |-- App.jsx    (rewritten: router, navbar, routes)
-|   |-- index.css  (rewritten: tokens, base, app shell)
-|   |-- App.css    (deleted: dead landing-page CSS)
+|   |-- index.css  (rewritten: tokens, base, page shell, card grid, focus ring)
 |   `-- main.jsx   (unchanged)
 `-- README.md      (updated)
 ```
 
-The per-file CSS layout depends on the styling decision taken in Slice 1.
+Cards share one stylesheet. The per-file CSS layout is settled: `Navbar.css` and `Card.css` are the only component stylesheets, the card grid and the focus ring live in `src/index.css`, and no page carries a stylesheet of its own.
 
 ## 5. Routes
 
@@ -116,8 +116,21 @@ The per-file CSS layout depends on the styling decision taken in Slice 1.
 | `schedule` | string | `MWF 9:00-10:00 AM` |
 | `room` | string | `Lab 204` |
 
-Pages pass props by spreading the record: `<StudentCard key={student.id} {...student} />`. The `key`
-comes from the record id, and the card destructures only the props it renders.
+`Card` props, the shared shell that both cards render:
+
+| Prop | Type | Example |
+| --- | --- | --- |
+| `title` | string | `Juan Dela Cruz` |
+| `meta` | string | `2023-00187` |
+| `rows` | `{ label, value }[]` | `[{ label: 'Program', value: 'BS Computer Science' }]` |
+
+`value` may be a string, a number or a node, so `StudentCard` passes its `mailto:` anchor through
+unchanged. Rows are keyed by `label`, which is unique inside one card.
+
+Pages pass props by spreading the record: `<StudentCard key={student.id} {...student} />` and
+`<CourseCard key={course.code} {...course} />`. The `key` comes from the record id for students and
+from the course code for courses, because a course record has no separate id field. Each card
+destructures only the props it renders and hands `Card` its own field list.
 
 ## 7. Slice plan
 
@@ -126,9 +139,9 @@ comes from the record id, and the card destructures only the props it renders.
 | 0 | Docs and cline rules | Done | Docs exist, `src/` untouched, lint clean |
 | 1 | Folders, routing skeleton, Navbar | Done | All four links change page and URL, active link highlighted, hard refresh on `/students` renders |
 | 2 | Students page and StudentCard | Done | Four cards from `.map()`, no missing-key warning |
-| 3 | Courses page and CourseCard | Not started | Four cards from the same component, no copy-paste |
+| 3 | Courses page and CourseCard | Done | Four CourseCards from one mapped component over a shared shell, no duplicated markup or CSS |
 | 4 | Home and About content | Not started | Home reuses StudentCard and CourseCard, proving cross-page reuse |
-| 5 | Styling and responsive pass | Not started | Grids reflow at 640px, consistent spacing and focus states |
+| 5 | Styling and responsive pass | Not started | Spacing and type scale consistent across pages, the 640px reflow spot-checked, remaining hover and focus states polished. The shared grid and focus ring already exist, so the extraction once scheduled here is dropped |
 | 6 | Cleanup, docs, final verification | Not started | Lint clean, build green, README documents routes and props |
 | 7 | Route smoke test (optional) | Deferred | All routes render under `MemoryRouter` without a browser |
 
@@ -148,6 +161,19 @@ Slice 2 file list, declared in advance:
   `docs/IMPLEMENTATION_PLAN.md`, `docs/SLICE_LOG.md`.
 - No deletions. `README.md` is the same-slice doc update that amended rule 5 now requires.
 
+Slice 3 file list, declared in advance and revised with the user before editing. The revision was needed
+because the Slice 2 note told this slice to copy the card CSS and the page grid:
+
+- Add `src/data/courses.js`, `src/components/Card.jsx`, `src/components/Card.css`,
+  `src/components/CourseCard.jsx`.
+- Change `src/pages/Courses.jsx`, `src/pages/Students.jsx`, `src/components/StudentCard.jsx`,
+  `src/index.css`, `src/components/Navbar.css`, `README.md`, `docs/IMPLEMENTATION_PLAN.md`,
+  `docs/SLICE_LOG.md`.
+- Delete `src/components/StudentCard.css`, `src/pages/Students.css`.
+- `src/pages/Courses.css` is deliberately not created, and `src/App.jsx` is untouched because the
+  `/courses` route already exists.
+- Verify with `npm run lint`, `npm run build`, a bundle inspection and `vite preview` on every route.
+
 ## 8. Decisions pending
 
 | Item | Options | Recommendation | Status |
@@ -158,6 +184,9 @@ Slice 2 file list, declared in advance:
 | Dead template files | Delete `App.css` and unused images / keep | Delete `App.css`, keep the images | Decided (Slice 1) |
 | README update timing | Same slice as the change / one rewrite in Slice 6 | Same slice, so the README in the submitted repo is never stale; Slice 6 keeps the final read-through | Decided (Slice 2), rule 5 amended |
 | Catch-all route | Add `NotFound` + `*` / skip | Add it and mark it as a bonus in the README | Open, scheduled for Slice 6. Slice 2 confirmed `vite preview` answers 200 for `/nope`, so an unmatched URL currently renders the navbar and an empty `main` with no message |
+| Shared card shell | Copy the card markup and CSS per card / one shared `Card` component | One `Card` component that both cards render, so no markup and no CSS is duplicated | Decided (Slice 3), on the no-duplication directive |
+| Card list layout | One grid rule per page / one shared grid rule | One `.card-grid` rule in `src/index.css`, used by Students, Courses and Home; `Students.css` was deleted rather than copied | Decided (Slice 3) |
+| Focus ring | Repeat the outline rule per stylesheet / one rule in `src/index.css` | One `a:focus-visible` rule in `src/index.css`, removed from `Navbar.css` | Decided (Slice 3) |
 | Slice 7 route test | Zero-dependency SSR render / Vitest / skip | Skip unless a rubric mark depends on tests | Open, deferred |
 | Commit cadence | One commit per slice / a single commit at the end | One commit per slice, only after approval | Decided: one commit per slice, executed for Slices 0 and 1 |
 
@@ -187,3 +216,5 @@ Operating rules live in `.clinerules/implementation-workflow.md`; slice history 
 | --- | --- | --- |
 | 0 | `87db04c` | docs: add implementation plan, slice log and cline rules |
 | 1 | `1af3224` | add: added routing skeleton, Navbar and four page stubs |
+| 2 | `cfef8df` | add: added Students page, reusable StudentCard and students data module |
+| 3 | pending approval | add: added Courses page, reusable CourseCard and a shared Card component |
