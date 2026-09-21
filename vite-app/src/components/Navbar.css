@@ -1,63 +1,95 @@
+/*
+ * Sticky masthead. The header is closed with a doubled hairline rather than a
+ * shadow, matching the ruled paper idea the page shell uses, and the wordmark is a
+ * two line block in the serif with a monospace sub-line under it, so the bar does
+ * not read as a default pill navbar.
+ */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  background: var(--paper);
+  border-bottom: 3px double var(--rule-strong);
 }
 
 .navbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 10px 24px;
+  gap: 12px 32px;
   max-width: 1126px;
   margin: 0 auto;
-  padding: 14px 24px;
+  padding: 16px 32px;
 }
 
 .navbar__brand {
-  font-size: 1rem;
+  display: grid;
+  gap: 3px;
+  text-decoration: none;
+}
+
+.navbar__brand-name {
+  font-family: var(--serif);
+  font-size: 1.0625rem;
   font-weight: 600;
   letter-spacing: -0.01em;
-  color: var(--text-h);
-  text-decoration: none;
+  color: var(--ink);
+}
+
+.navbar__brand-note {
+  font: 0.6875rem/1.4 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
 }
 
 .navbar__list {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 2px 20px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/*
+ * The current page is marked with a 2px rule under its label instead of a filled
+ * pill, so the active state uses the same hairline idea as the rest of the shell.
+ */
 .navbar__link {
   display: inline-block;
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 0.9375rem;
-  color: var(--text);
+  padding: 4px 0;
+  border-bottom: 2px solid transparent;
+  font: 0.75rem/1.6 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
   text-decoration: none;
-  transition: background-color 0.2s, color 0.2s;
+  transition: color 0.18s, border-color 0.18s;
 }
 
 .navbar__link:hover {
-  background: var(--accent-soft);
-  color: var(--accent-text);
+  color: var(--ink);
+  border-bottom-color: var(--rule-strong);
 }
 
 .navbar__link--active,
 .navbar__link--active:hover {
-  background: var(--accent);
-  color: #fff;
+  color: var(--accent-text);
+  border-bottom-color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar__link {
+    transition: none;
+  }
 }
 
 @media (max-width: 640px) {
   .navbar {
-    justify-content: center;
+    justify-content: flex-start;
+    gap: 12px 20px;
     padding: 12px 16px;
   }
 }

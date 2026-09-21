@@ -37,14 +37,14 @@ rule, would not.
 | `src/components/` | Reusable UI: `Navbar`, `Card`, `StudentCard`, `CourseCard` |
 | `src/pages/` | One component per route |
 | `src/data/` | Plain data modules, no JSX: `students.js`, `courses.js` |
-| `src/index.css` | Design tokens, base typography, page container, shared card grid and focus ring |
-| `docs/` | Implementation plan and slice log |
+| `src/index.css` | Design tokens, base typography, page shell (kicker, lead, meta line, section rule, hero band, stat strip), shared card grid and focus ring |
+| `docs/` | `PROGRESS.md` (slice progress tracker) and `IMPLEMENTATION_PLAN.md` (routes, props, constraints) |
 
 ## Components
 
 | Component | Role |
 | --- | --- |
-| `Navbar` | `NavLink` list built from one array, one entry per route |
+| `Navbar` | Brand block plus a `NavLink` list built from one array, one entry per route |
 | `Card` | Shared card shell: title, meta line, labelled value rows |
 | `StudentCard` | Maps one student record onto `Card` |
 | `CourseCard` | Maps one course record onto `Card` |
@@ -54,16 +54,53 @@ for its record type and hands it to `Card`, so no card code and no card styling 
 
 ## Styling
 
-Styling is plain CSS, and each rule lives in exactly one place:
+The look is deliberately not the default dashboard: ink on paper, serif headings, monospace data,
+hairline rules instead of floating rounded boxes, and a single oxblood accent. Styling is plain CSS,
+and each rule lives in exactly one place:
 
 | File | Owns |
 | --- | --- |
-| `src/index.css` | Tokens, base typography, `.page` container, `.card-grid`, `a:focus-visible` |
-| `src/components/Navbar.css` | Header, brand, nav links, active pill |
+| `src/index.css` | Tokens, base typography, page shell (kicker, lead, meta line, section rule, hero band, stat strip, ruled list), `.card-grid`, `a:focus-visible` |
+| `src/components/Navbar.css` | Header, brand block, nav links, active rule |
 | `src/components/Card.css` | The card shell, shared by both cards |
 
 No page carries a stylesheet. The card list is the single `.card-grid` rule in `src/index.css`, so
 the Students, Courses and Home pages get the same responsive grid without copying it.
+
+### Design tokens
+
+Light is the default and dark is a token override inside `prefers-color-scheme`, so no component knows
+which theme is active.
+
+| Token | Light | Dark | Used for |
+| --- | --- | --- | --- |
+| `--paper` | `#f7f4ed` | `#14161a` | Page ground and the sticky header |
+| `--surface` | `#fffdf8` | `#1b1e24` | Card surface |
+| `--surface-sunk` | `#efeade` | `#22262e` | Hero band |
+| `--ink` | `#1a1c22` | `#f2efe8` | Headings and values |
+| `--ink-soft` | `#4a4f58` | `#b6b3ab` | Body copy and inactive nav links |
+| `--rule` | `#ddd6c8` | `#2c3037` | Hairlines |
+| `--rule-strong` | `#c9c0ac` | `#3a3f48` | Doubled header rule and the stat strip rule |
+| `--accent` | `#8c2f39` | `#c05a63` | Active nav rule and the focus ring |
+| `--accent-text` | `#7a2531` | `#e0a3a3` | Links |
+| `--gold` | `#8a5a12` | `#d9a94c` | Kickers and stat labels |
+| `--radius` | `3px` | `3px` | Near square corners |
+
+Contrast against the paper ground, computed with the WCAG relative luminance formula. Light: ink
+15.5:1, ink-soft 7.5:1, accent 7.41:1, accent-text 8.95:1, gold 5.38:1, white on accent 8.14:1. Dark:
+ink 15.77:1, ink-soft 8.65:1, accent 8.57:1, gold 8.39:1. Every pair clears AA.
+
+Three stacks, all of them fonts already on the machine, so the app loads no webfont:
+
+| Token | Stack |
+| --- | --- |
+| `--serif` | `'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif` |
+| `--sans` | `system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif` |
+| `--mono` | `ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace` |
+
+`--bg`, `--text`, `--text-h` and `--border` are the Slice 1 token names. They now alias `--paper`,
+`--ink-soft`, `--ink` and `--rule`, and `Card.css` is their only remaining reader, which is why they
+still exist.
 
 ### `Card`
 

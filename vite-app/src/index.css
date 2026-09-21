@@ -1,21 +1,52 @@
+/*
+ * Design tokens. The portal is deliberately styled as a registry of records rather
+ * than a dashboard: ink on paper, hairline rules instead of floating boxes, one
+ * oxblood accent, and gold reserved for the small monospace labels. Every rule in
+ * the app reads its colours from here, so the dark theme is a token override
+ * rather than a second stylesheet. Tailwind is registered in vite.config.js but
+ * never imported, so these declarations are the only styling layer and no cascade
+ * layer conflict is possible.
+ *
+ * Contrast against the light paper ground, computed with the WCAG relative
+ * luminance formula: ink 15.5, ink-soft 7.5, accent 7.41, accent-text 8.95, gold
+ * 5.38, white on accent 8.14. Every one of those clears AA.
+ */
 :root {
-  --text: #4b5563;
-  --text-h: #0f172a;
-  --bg: #f5f6fa;
-  --surface: #ffffff;
-  --border: #e3e6ee;
-  --accent: #4f46e5;
-  --accent-text: #4338ca;
-  --accent-soft: rgba(79, 70, 229, 0.1);
-  --radius: 12px;
-  --shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 24px -14px rgba(15, 23, 42, 0.3);
+  --paper: #f7f4ed;
+  --surface: #fffdf8;
+  --surface-sunk: #efeade;
+  --ink: #1a1c22;
+  --ink-soft: #4a4f58;
+  --rule: #ddd6c8;
+  --rule-strong: #c9c0ac;
+  --accent: #8c2f39;
+  --accent-text: #7a2531;
+  --accent-soft: rgba(140, 47, 57, 0.08);
+  --selection: rgba(140, 47, 57, 0.22);
+  --gold: #8a5a12;
+  --radius: 3px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /*
+   * Slice 1 names, kept as aliases because Card.css is not in this slice yet and
+   * still reads them. The card redesign deletes the four aliases together with
+   * their last usage, so the token set carries two names for one value only for
+   * this one slice.
+   */
+  --bg: var(--paper);
+  --text: var(--ink-soft);
+  --text-h: var(--ink);
+  --border: var(--rule);
 
-  font: 16px/150% var(--sans);
-  color: var(--text);
-  background: var(--bg);
+  /* Read by Card.css until the card redesign replaces the shadow with a rule. */
+  --shadow: 0 1px 0 0 var(--rule);
+
+  --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+  --sans: system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace;
+
+  font: 16px/1.6 var(--sans);
+  color: var(--ink-soft);
+  background: var(--paper);
   color-scheme: light dark;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -24,14 +55,18 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #a8b0c0;
-    --text-h: #f3f4f6;
-    --bg: #14161c;
-    --surface: #1b1e26;
-    --border: #2b2f3a;
-    --accent-text: #a5b4fc;
-    --accent-soft: rgba(165, 180, 252, 0.14);
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 24px -14px rgba(0, 0, 0, 0.6);
+    --paper: #14161a;
+    --surface: #1b1e24;
+    --surface-sunk: #22262e;
+    --ink: #f2efe8;
+    --ink-soft: #b6b3ab;
+    --rule: #2c3037;
+    --rule-strong: #3a3f48;
+    --accent: #c05a63;
+    --accent-text: #e0a3a3;
+    --accent-soft: rgba(224, 163, 163, 0.12);
+    --selection: rgba(224, 163, 163, 0.28);
+    --gold: #d9a94c;
   }
 }
 
@@ -51,26 +86,34 @@ body {
   min-height: 100svh;
 }
 
+::selection {
+  background: var(--selection);
+  color: var(--ink);
+}
+
 h1,
 h2,
 h3 {
   margin: 0 0 12px;
-  color: var(--text-h);
+  color: var(--ink);
+  font-family: var(--serif);
   font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
 }
 
 h1 {
-  font-size: 2.125rem;
+  font-size: clamp(2rem, 1.4rem + 3vw, 3.25rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
 }
 
 h2 {
-  font-size: 1.375rem;
+  font-size: 1.5rem;
 }
 
 h3 {
-  font-size: 1.0625rem;
+  font-size: 1.1875rem;
 }
 
 p {
@@ -79,6 +122,7 @@ p {
 
 a {
   color: var(--accent-text);
+  text-underline-offset: 3px;
 }
 
 /*
@@ -95,50 +139,166 @@ a:focus-visible {
   width: 100%;
   max-width: 1126px;
   margin: 0 auto;
-  padding: 32px 24px 64px;
+  padding: 40px 32px 96px;
+}
+
+/* Small monospace label above a heading, e.g. a numbered section. */
+.page__kicker {
+  margin: 0 0 8px;
+  font: 0.6875rem/1.4 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--gold);
 }
 
 .page__lead {
-  max-width: 62ch;
+  max-width: 60ch;
   margin-bottom: 24px;
   font-size: 1.0625rem;
 }
 
+/* Monospace context line under an h1, used for record counts. */
+.page__meta {
+  margin: 0 0 28px;
+  font: 0.75rem/1.6 var(--mono);
+  font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+}
+
 /*
- * Vertical rhythm between stacked sections on the Home and About pages. h2 has no
- * top margin, so without this the gap between a card grid and the next heading
- * would be zero.
+ * Stacked sections on the Home and About pages. A top hairline is what separates
+ * them now that the cards are ruled rather than floating, and it also supplies
+ * the space above each h2, which is declared with no top margin.
  */
 .page__section {
-  margin-top: 40px;
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
 }
 
 /* Link line under a card grid, e.g. "View all students". */
 .page__more {
-  margin: 16px 0 0;
+  margin: 20px 0 0;
+  font: 0.75rem/1.6 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
-/* Plain lists on the About page, spaced like the rows inside a card. */
+.page__more a {
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--accent);
+}
+
+/*
+ * About page lists. Each item is a ruled register entry: the bullet is replaced by
+ * a monospace index numeral from a CSS counter and the item is closed with a
+ * hairline. The markup stays a plain ul of li elements, and the rows use the full
+ * page width, as they did before the redesign.
+ *
+ * The numeral sits in a left gutter as an inline-block pulled back by a negative
+ * margin. It is deliberately not a grid or flex column. A grid or flex container
+ * blockifies its inline children, so an item that opens with a <strong> would
+ * break into three boxes and the description would be auto-placed into the 40px
+ * counter column, wrapping a few characters per line.
+ */
 .page__list {
-  display: grid;
-  gap: 8px;
   margin: 0;
-  padding-left: 20px;
+  padding: 0;
+  list-style: none;
+  counter-reset: entry;
+}
+
+.page__list li {
+  padding: 14px 0 14px 40px;
+  border-bottom: 1px solid var(--rule);
+  counter-increment: entry;
+}
+
+.page__list li::before {
+  content: counter(entry, decimal-leading-zero);
+  display: inline-block;
+  width: 40px;
+  margin-left: -40px;
+  font: 0.75rem/1.6 var(--mono);
+  color: var(--gold);
+}
+
+/*
+ * Home hero band: a sunk panel rather than a card, so the first thing on the
+ * index route reads as the cover sheet of the catalog.
+ */
+.hero {
+  padding: 32px;
+  background: var(--surface-sunk);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+}
+
+.hero__title {
+  max-width: 24ch;
+  margin-bottom: 16px;
+}
+
+/* Figures derived from the data modules, e.g. record count and total units. */
+.stat-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 44px;
+  margin: 28px 0 0;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.stat {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+}
+
+.stat__value {
+  font-family: var(--serif);
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat__label {
+  font: 0.6875rem/1.4 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gold);
 }
 
 /*
  * Card list shared by the Students, Courses and Home pages. auto-fill fits as many
- * 280px columns as the viewport allows and drops to a single column when there is
+ * 300px columns as the viewport allows and drops to a single column when there is
  * no room for two, so no media query is needed.
  */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
 }
 
 @media (max-width: 640px) {
   .page {
-    padding: 24px 16px 48px;
+    padding: 24px 16px 64px;
+  }
+
+  .hero {
+    padding: 20px;
+  }
+
+  .page__list li {
+    padding-left: 28px;
+  }
+
+  .page__list li::before {
+    width: 28px;
+    margin-left: -28px;
   }
 }
