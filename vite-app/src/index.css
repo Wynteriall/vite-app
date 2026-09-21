@@ -105,6 +105,28 @@ a:focus-visible {
 }
 
 /*
+ * Vertical rhythm between stacked sections on the Home and About pages. h2 has no
+ * top margin, so without this the gap between a card grid and the next heading
+ * would be zero.
+ */
+.page__section {
+  margin-top: 40px;
+}
+
+/* Link line under a card grid, e.g. "View all students". */
+.page__more {
+  margin: 16px 0 0;
+}
+
+/* Plain lists on the About page, spaced like the rows inside a card. */
+.page__list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+/*
  * Card list shared by the Students, Courses and Home pages. auto-fill fits as many
  * 280px columns as the viewport allows and drops to a single column when there is
  * no room for two, so no media query is needed.

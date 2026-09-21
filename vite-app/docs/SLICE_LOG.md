@@ -7,8 +7,8 @@ Append-only. One entry per completed slice, newest last. Keep the status table i
 | 0 | Docs and cline rules | Done | 3 |
 | 1 | Folders, routing skeleton, Navbar | Done | 9 |
 | 2 | Students page and StudentCard | Done | 5 |
-| 3 | Courses page and CourseCard | Not started | - |
-| 4 | Home and About content | Not started | - |
+| 3 | Courses page and CourseCard | Done | 14 |
+| 4 | Home and About content | Done | 5 |
 | 5 | Styling and responsive pass | Not started | - |
 | 6 | Cleanup, docs, final verification | Not started | - |
 | 7 | Route smoke test (optional, deferred) | Deferred | - |
@@ -226,7 +226,7 @@ consolidate both into one shared grid once the Home page needs it too.
 Date: 2026-09-21
 Status: done
 
-Commit: pending approval
+Commit: cc2bcf4
 
 Files added (4):
 - `src/data/courses.js`
@@ -315,3 +315,93 @@ Deviations:
 
 Next: Slice 4 (Home and About content), where Home reuses both cards and the cards become provably
 reusable across pages rather than only within one page. Blocked on commit approval for Slice 3.
+
+## Slice 4 - Home and About content
+
+Date: 2026-09-21
+Status: done
+
+Commit: pending approval
+
+Files changed (5):
+- `src/pages/Home.jsx`
+- `src/pages/About.jsx`
+- `src/index.css`
+- `docs/IMPLEMENTATION_PLAN.md`
+- `docs/SLICE_LOG.md`
+
+What changed and why:
+- `Home.jsx` is no longer a placeholder. It renders an intro line that reads the real record counts, then
+  a featured-students block and a featured-courses block. Each block maps a filtered subset of a data
+  module onto the very same `StudentCard` and `CourseCard` the Students and Courses pages render, which is
+  the cross-page reuse this slice exists to prove: the cards are not page-specific wrappers.
+- The preview selects records by an explicit id/code list held in two module-private constants, the same
+  non-exported-constant pattern `Navbar.jsx` uses for its link list. `students.filter(...)` and
+  `courses.filter(...)` are used rather than a lookup by id, so a selection can never yield `undefined` and
+  the preview still follows the order of the data file. Only a subset is previewed, so no record is
+  rendered on two routes at once and the full lists stay where the rubric asks for them.
+- The two calls to action use `Link`, not `NavLink`, because `NavLink` exists to consume `isActive` and that
+  highlight is only wanted in the navbar. Rule 2 literally reads "`NavLink` for navigation, `Link` for
+  in-page links"; the one-line amendment that would remove the ambiguity was proposed with this slice and
+  was not explicitly approved, so rule 2 stands as written and this reading is recorded under Deviations
+  and in the plan's decisions table.
+- `About.jsx` is no longer a placeholder. It describes the portal, lists the four routes and what each one
+  shows, then lists the stack. Nothing on the page is data driven, so every `<li>` is written literally and
+  the stable-key rule has nothing to apply to: no array is mapped and no card is rendered on About.
+- `src/index.css` gained exactly three page-shell rules. `.page__section` is the one that mattered: `h2` is
+  declared `margin: 0 0 12px`, so with two stacked sections the second heading would have sat flush against
+  the card grid above it. `.page__more` spaces the call to action under a grid, and `.page__list` gives the
+  About lists the same row rhythm as the rows inside a card instead of browser default list margins. All
+  three live in `index.css` next to `.page` and `.page__lead`, so no page gained a stylesheet and the
+  settled CSS layout from Slice 3 still holds.
+- Doc bookkeeping: the Slice 3 commit left three stale lines, all repaired here because both doc files are
+  in this slice's declared list. The `SLICE_LOG.md` status table still said Slice 3 `Not started` with `-`
+  files touched, its entry still said `Commit: pending approval`, and the plan's commit history row still
+  read `pending approval`. The log's historical prose was left untouched, since the log is append-only and
+  only the status table and the `Commit:` placeholder are meant to be filled in later.
+- A missing trailing newline was added to `Home.jsx` and `About.jsx`, the two files this slice rewrote.
+  `App.jsx` and `Navbar.jsx` still lack one, but they are outside this slice's declared list, so that is
+  left for Slice 6.
+
+Verified:
+- `npm run lint` -> no findings, exit code 0.
+- `npm run build` -> 38 modules transformed (unchanged from Slice 3), built in 414ms,
+  `dist/assets/index-BLMh4m8f.css` 3.21 kB (up from 3.09 kB: the three new rules),
+  `dist/assets/index-DuvHQOpN.js` 269.50 kB (up from 265.79 kB: the new page copy).
+- The built JS chunk was inspected directly and contains `Featured students`, `What you can do here`,
+  `How it is built` and `View all `, so the new copy is genuinely reachable from the bundle rather than
+  dead code. The same chunk contains neither `student-card` nor `course-card`, and the CSS chunk contains
+  `.page__section`, `.page__more` and `.page__list` alongside the existing `.card-grid`. Together that is
+  the direct evidence that Home renders the shared card shell instead of a new card implementation, and
+  that no per-card class was reintroduced.
+- `vite preview --port 5212 --strictPort` returned HTTP 200 for `/`, `/students`, `/courses`, `/about` and
+  `/nope`. The server was stopped and `Get-NetTCPConnection -LocalPort 5212` then reported 0 listeners.
+- Byte checks: `Home.jsx`, `About.jsx` and `index.css` contain 0 non-ASCII bytes and 0 carriage returns.
+
+Not verified:
+- No page was rendered in a browser. Lint, build, bundle inspection and HTTP status codes cannot prove
+  that the two previews draw four cards, that the two "View all" links navigate client side, or that the
+  40px section rhythm reads well at 640px.
+- The `Link` usage on Home is confirmed as source and as bundle content only, not as a working click.
+
+Docs updated:
+- `docs/IMPLEMENTATION_PLAN.md`: slice plan status table (Slice 4 -> Done, Slice 5 exit criteria clarified),
+  new Slice 4 file list block, decisions pending (two new rows for the cross-route link element and the Home
+  preview source, plus a correction to the commit-cadence row, which still claimed only Slices 0 and 1 were
+  committed), commit history (Slice 3 hash filled in, Slice 4 row added).
+- `docs/SLICE_LOG.md`: status table (Slice 3 repaired to Done/14, Slice 4 added), Slice 3 `Commit:`
+  placeholder filled in, and this entry appended.
+
+Deviations:
+- `docs/IMPLEMENTATION_PLAN.md` and `docs/SLICE_LOG.md` are in the slice's declared list and were edited, as
+  rule 3 and rule 5 require. `README.md` was deliberately not touched, because rule 5 only requires it for
+  route, prop, folder or script changes and this slice makes none.
+- The three stale Slice 3 doc lines were repaired here instead of in Slice 3, because the commit that
+  created the staleness landed after that slice was reported.
+- The proposed one-line wording amendment to rule 2 was not applied, because it was not explicitly approved
+  with the rest of the plan. `.clinerules/implementation-workflow.md` is untouched.
+- `Commit:` above is filled in once the user approves the commit, the order Slices 1 to 3 used.
+
+Next: Slice 5 (styling and responsive pass), polish only: consistent spacing and type scale across the four
+pages, the 640px reflow spot-checked, and the remaining hover and focus states. Nothing in the rubric is
+blocked on the user; the slice is blocked only on commit approval for Slice 4.

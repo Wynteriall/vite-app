@@ -140,8 +140,8 @@ destructures only the props it renders and hands `Card` its own field list.
 | 1 | Folders, routing skeleton, Navbar | Done | All four links change page and URL, active link highlighted, hard refresh on `/students` renders |
 | 2 | Students page and StudentCard | Done | Four cards from `.map()`, no missing-key warning |
 | 3 | Courses page and CourseCard | Done | Four CourseCards from one mapped component over a shared shell, no duplicated markup or CSS |
-| 4 | Home and About content | Not started | Home reuses StudentCard and CourseCard, proving cross-page reuse |
-| 5 | Styling and responsive pass | Not started | Spacing and type scale consistent across pages, the 640px reflow spot-checked, remaining hover and focus states polished. The shared grid and focus ring already exist, so the extraction once scheduled here is dropped |
+| 4 | Home and About content | Done | Home reuses StudentCard and CourseCard, proving cross-page reuse |
+| 5 | Styling and responsive pass | Not started | Spacing and type scale consistent across pages, the 640px reflow spot-checked, remaining hover and focus states polished. The shared grid, the focus ring and the section rhythm already exist, so the extraction once scheduled here is dropped and Slice 5 is polish only |
 | 6 | Cleanup, docs, final verification | Not started | Lint clean, build green, README documents routes and props |
 | 7 | Route smoke test (optional) | Deferred | All routes render under `MemoryRouter` without a browser |
 
@@ -174,6 +174,19 @@ because the Slice 2 note told this slice to copy the card CSS and the page grid:
   `/courses` route already exists.
 - Verify with `npm run lint`, `npm run build`, a bundle inspection and `vite preview` on every route.
 
+Slice 4 file list, declared in advance:
+
+- Change `src/pages/Home.jsx`, `src/pages/About.jsx`, `src/index.css`,
+  `docs/IMPLEMENTATION_PLAN.md`, `docs/SLICE_LOG.md`.
+- No additions, no deletions. `src/App.jsx` and `src/main.jsx` are untouched because `/` and `/about`
+  already exist, so this slice changes no route and no prop. `README.md` is therefore not required by
+  rule 5 and was left alone; `src/components/` and `src/data/` are read only.
+- `src/index.css` gains exactly three page-shell rules: `.page__section` (a 40px top margin, required
+  because `h2` is declared with no top margin), `.page__more` and `.page__list`.
+- Verify with `npm run lint`, `npm run build`, a bundle inspection and `vite preview` on every route.
+- The slice also repaired three stale doc lines left by the Slice 3 commit: the Slice 3 row in the
+  `SLICE_LOG.md` status table, its `Commit:` placeholder, and the Slice 3 row in the commit history below.
+
 ## 8. Decisions pending
 
 | Item | Options | Recommendation | Status |
@@ -187,8 +200,10 @@ because the Slice 2 note told this slice to copy the card CSS and the page grid:
 | Shared card shell | Copy the card markup and CSS per card / one shared `Card` component | One `Card` component that both cards render, so no markup and no CSS is duplicated | Decided (Slice 3), on the no-duplication directive |
 | Card list layout | One grid rule per page / one shared grid rule | One `.card-grid` rule in `src/index.css`, used by Students, Courses and Home; `Students.css` was deleted rather than copied | Decided (Slice 3) |
 | Focus ring | Repeat the outline rule per stylesheet / one rule in `src/index.css` | One `a:focus-visible` rule in `src/index.css`, removed from `Navbar.css` | Decided (Slice 3) |
+| Cross-route links outside the navbar | `NavLink` everywhere / `Link` where no active state is needed | `Link` for Home's two "View all" calls to action, because `NavLink` exists to consume `isActive` and the navbar is the only place that highlight is wanted | Decided (Slice 4). Rule 2 still reads "`NavLink` for navigation, `Link` for in-page links"; a one-line wording amendment was proposed and is not applied yet |
+| Home preview source | Explicit id/code list / `.slice(0, n)` / all records | Explicit `featuredStudentIds` and `featuredCourseCodes` lists filtered out of the data modules, so the preview cannot silently change if a data file is reordered and Home never duplicates the full lists | Decided (Slice 4) |
 | Slice 7 route test | Zero-dependency SSR render / Vitest / skip | Skip unless a rubric mark depends on tests | Open, deferred |
-| Commit cadence | One commit per slice / a single commit at the end | One commit per slice, only after approval | Decided: one commit per slice, executed for Slices 0 and 1 |
+| Commit cadence | One commit per slice / a single commit at the end | One commit per slice, only after approval | Decided: one commit per slice, executed for Slices 0, 1, 2 and 3 |
 
 ## 9. Verification strategy
 
@@ -217,4 +232,5 @@ Operating rules live in `.clinerules/implementation-workflow.md`; slice history 
 | 0 | `87db04c` | docs: add implementation plan, slice log and cline rules |
 | 1 | `1af3224` | add: added routing skeleton, Navbar and four page stubs |
 | 2 | `cfef8df` | add: added Students page, reusable StudentCard and students data module |
-| 3 | pending approval | add: added Courses page, reusable CourseCard and a shared Card component |
+| 3 | `cc2bcf4` | add: added Courses page, reusable CourseCard and a shared Card component |
+| 4 | pending approval | add: added Home and About content and the shared section rhythm |
