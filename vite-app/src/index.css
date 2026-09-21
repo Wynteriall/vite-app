@@ -13,7 +13,6 @@
  */
 :root {
   --paper: #f7f4ed;
-  --surface: #fffdf8;
   --surface-sunk: #efeade;
   --ink: #1a1c22;
   --ink-soft: #4a4f58;
@@ -27,19 +26,12 @@
   --radius: 3px;
 
   /*
-   * Slice 1 names, kept as aliases because Card.css is not in this slice yet and
-   * still reads them. The card redesign deletes the four aliases together with
-   * their last usage, so the token set carries two names for one value only for
-   * this one slice.
+   * The Slice 1 alias names --bg, --text, --text-h and --border are gone, together
+   * with the --shadow token: Card.css was their last reader and the card redesign
+   * replaced its border box and shadow with a top rule and ruled rows. The card
+   * also lost its surface fill, which retired --surface, so the token set now
+   * carries exactly one name per value and no alias survives.
    */
-  --bg: var(--paper);
-  --text: var(--ink-soft);
-  --text-h: var(--ink);
-  --border: var(--rule);
-
-  /* Read by Card.css until the card redesign replaces the shadow with a rule. */
-  --shadow: 0 1px 0 0 var(--rule);
-
   --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
   --sans: system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace;
@@ -56,7 +48,6 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --paper: #14161a;
-    --surface: #1b1e24;
     --surface-sunk: #22262e;
     --ink: #f2efe8;
     --ink-soft: #b6b3ab;

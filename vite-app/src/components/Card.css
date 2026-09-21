@@ -2,26 +2,34 @@
  * Shared card shell. StudentCard and CourseCard both render these classes, so the
  * card look is defined once instead of once per card. Colours and the focus ring
  * come from the tokens in src/index.css.
+ *
+ * The card is a register entry rather than a floating box: a 2px rule opens the
+ * record, a hairline closes the header and the same hairline separates every field
+ * below it. There is no surface fill, no border box and no shadow, so a grid of
+ * cards reads as one continuous ruled list even though every card is its own
+ * element. The padding keeps neighbouring columns of `.card-grid` apart now that
+ * there is no panel edge to do it.
  */
 .card {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 18px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  gap: 12px;
+  padding: 16px 18px 20px;
+  border-top: 2px solid var(--rule-strong);
 }
 
 .card__header {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 4px 12px;
+  gap: 10px 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--rule);
+}
+
+.card__heading {
+  min-width: 0;
 }
 
 .card__title {
@@ -29,37 +37,84 @@
 }
 
 .card__meta {
-  margin: 0;
-  font: 0.8125rem/1.4 var(--mono);
+  margin: 0 0 4px;
+  font: 0.6875rem/1.4 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gold);
 }
 
+/*
+ * The focal figure. Value over label, both declared `display: block` instead of
+ * being laid out by a grid or flex parent: a grid container blockifies its inline
+ * children, which is the trap documented in src/index.css for the About list, so
+ * the two lines are stacked by an explicit block display and no hazard is added.
+ */
+.card__figure {
+  margin: 0;
+  text-align: right;
+}
+
+.card__figure-value {
+  display: block;
+  font-family: var(--serif);
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.card__figure-label {
+  display: block;
+  margin-top: 3px;
+  font: 0.625rem/1.4 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+}
+
+/*
+ * Ruled rows. The dl itself is plain flow and every row after the first is closed
+ * at the top by a hairline, so the field list reads as a ruled register instead of
+ * a stack of floating boxes. `.card__row` is given element children (dt and dd),
+ * the rule every grid in these stylesheets has to follow.
+ */
 .card__details {
-  display: grid;
-  gap: 8px;
   margin: 0;
 }
 
 .card__row {
   display: grid;
   grid-template-columns: 88px 1fr;
-  gap: 2px 12px;
+  gap: 0 12px;
+  padding: 9px 0;
+}
+
+.card__row + .card__row {
+  border-top: 1px solid var(--rule);
 }
 
 .card__row dt {
-  font-size: 0.75rem;
-  line-height: 1.6;
+  font: 0.6875rem/1.6 var(--mono);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
 }
 
 .card__row dd {
   margin: 0;
-  color: var(--text-h);
+  color: var(--ink);
   overflow-wrap: anywhere;
 }
 
 @media (max-width: 640px) {
   .card__row {
-    grid-template-columns: 1fr;
+    grid-template-columns: 72px 1fr;
+    gap: 0 10px;
+  }
+
+  .card__figure-value {
+    font-size: 1.5rem;
   }
 }

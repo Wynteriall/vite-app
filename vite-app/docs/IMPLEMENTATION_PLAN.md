@@ -64,16 +64,22 @@ ignores both for function components.
 | `room` | string | `Lab 204` |
 
 `Card` (`src/components/Card.jsx`), the shared shell both cards render. Neither card owns markup or CSS of
-its own; each owns only its field list.
+its own; each owns only its field list, plus the one figure that list is read for.
 
 | Prop | Type | Example |
 | --- | --- | --- |
 | `title` | string | `Juan Dela Cruz` |
 | `meta` | string | `2023-00187` |
+| `figure` | string | `1.75` |
+| `figureLabel` | string | `GPA` |
 | `rows` | `{ label, value }[]` | `[{ label: 'Program', value: 'BS Computer Science' }]` |
 
-`value` may be a string, a number or a node, so `StudentCard` passes its `mailto:` anchor through
-unchanged. Rows are keyed by `label`, which is unique inside one card.
+`figure` is the single focal number of a record, drawn large in the card header and labelled by
+`figureLabel`. `StudentCard` sends the GPA and `CourseCard` sends `String(units)`, the unit load, and each
+of them leaves that field out of `rows` instead of printing it twice; `String(units)` rather than `units`
+so a zero-unit record still renders a figure, because an empty `figure` hides the whole block. `value`
+may be a string, a number or a node, so `StudentCard` passes its `mailto:` anchor through unchanged. Rows
+are keyed by `label`, which is unique inside one card.
 
 Records live in `src/data/students.js` and `src/data/courses.js`, outside the pages, because the eslint
 `react-refresh` rule rejects a file that exports a component and also exports plain data.

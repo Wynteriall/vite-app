@@ -45,7 +45,7 @@ rule, would not.
 | Component | Role |
 | --- | --- |
 | `Navbar` | Brand block plus a `NavLink` list built from one array, one entry per route |
-| `Card` | Shared card shell: title, meta line, labelled value rows |
+| `Card` | Shared card shell: meta line, title, one focal figure, ruled value rows |
 | `StudentCard` | Maps one student record onto `Card` |
 | `CourseCard` | Maps one course record onto `Card` |
 
@@ -62,10 +62,25 @@ and each rule lives in exactly one place:
 | --- | --- |
 | `src/index.css` | Tokens, base typography, page shell (kicker, lead, meta line, section rule, hero band, stat strip, ruled list), `.card-grid`, `a:focus-visible` |
 | `src/components/Navbar.css` | Header, brand block, nav links, active rule |
-| `src/components/Card.css` | The card shell, shared by both cards |
+| `src/components/Card.css` | The card shell - opening rule, header, focal figure, ruled rows - shared by both cards |
 
 No page carries a stylesheet. The card list is the single `.card-grid` rule in `src/index.css`, so
 the Students, Courses and Home pages get the same responsive grid without copying it.
+
+### Page compositions
+
+The pages share the shell classes but do not repeat each other's layouts. Nothing here needed a new
+class: the separation between blocks is a hairline from the existing `.page__section` or `.stat-strip`.
+
+| Page | Composition |
+| --- | --- |
+| `Home` | A sunk `.hero` band holding the kicker, title, summary and a `.stat-strip` of totals, then two ruled `.page__section` previews, each closed by a `.page__more` link |
+| `Students` | An editorial directory header: `.page__kicker`, heading, then a monospace `.page__meta` context line, then the card grid |
+| `Courses` | A catalog header: `.page__kicker` and heading, the card grid, then a closing `.stat-strip` of totals for the catalog |
+| `About` | `.page__kicker`, heading and prose, then two `.page__section` blocks of `.page__list` register entries |
+
+The figures in every strip and context line are derived from `src/data/*.js` rather than written out,
+so a new record changes the totals on its own.
 
 ### Design tokens
 
@@ -75,12 +90,11 @@ which theme is active.
 | Token | Light | Dark | Used for |
 | --- | --- | --- | --- |
 | `--paper` | `#f7f4ed` | `#14161a` | Page ground and the sticky header |
-| `--surface` | `#fffdf8` | `#1b1e24` | Card surface |
 | `--surface-sunk` | `#efeade` | `#22262e` | Hero band |
 | `--ink` | `#1a1c22` | `#f2efe8` | Headings and values |
 | `--ink-soft` | `#4a4f58` | `#b6b3ab` | Body copy and inactive nav links |
 | `--rule` | `#ddd6c8` | `#2c3037` | Hairlines |
-| `--rule-strong` | `#c9c0ac` | `#3a3f48` | Doubled header rule and the stat strip rule |
+| `--rule-strong` | `#c9c0ac` | `#3a3f48` | Doubled header rule, the card opening rule and the stat strip rule |
 | `--accent` | `#8c2f39` | `#c05a63` | Active nav rule and the focus ring |
 | `--accent-text` | `#7a2531` | `#e0a3a3` | Links |
 | `--gold` | `#8a5a12` | `#d9a94c` | Kickers and stat labels |
@@ -98,9 +112,9 @@ Three stacks, all of them fonts already on the machine, so the app loads no webf
 | `--sans` | `system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif` |
 | `--mono` | `ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace` |
 
-`--bg`, `--text`, `--text-h` and `--border` are the Slice 1 token names. They now alias `--paper`,
-`--ink-soft`, `--ink` and `--rule`, and `Card.css` is their only remaining reader, which is why they
-still exist.
+`--surface` and the Slice 1 alias names `--bg`, `--text`, `--text-h` and `--border`, together with the
+`--shadow` token, are gone. `Card.css` was the last reader of all of them, and the ruled card replaced
+its surface fill, its border box and its shadow, so every value now has exactly one token name.
 
 ### `Card`
 
@@ -108,10 +122,15 @@ still exist.
 | --- | --- | --- |
 | `title` | string | `Juan Dela Cruz` |
 | `meta` | string | `2023-00187` |
+| `figure` | string | `1.75` |
+| `figureLabel` | string | `GPA` |
 | `rows` | `{ label, value }[]` | `[{ label: 'Program', value: 'BS Computer Science' }]` |
 
-`value` may be a string, a number or a node, so `StudentCard` passes its `mailto:` anchor through
-unchanged. Rows are keyed by `label`, which is unique inside one card.
+`figure` is the one focal number of the record, drawn large in the card header and labelled by
+`figureLabel`. `StudentCard` passes the GPA and `CourseCard` the unit load, and neither repeats that
+field in `rows`, so the header carries what the record is read for and the rows carry the rest. `value`
+may be a string, a number or a node, so `StudentCard` passes its `mailto:` anchor through unchanged.
+Rows are keyed by `label`, which is unique inside one card.
 
 ## Component props
 
