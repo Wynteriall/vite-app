@@ -44,4 +44,6 @@ Next: next slice and anything blocked on the user
 ## 5. Doc map
 - Slice status change -> `docs/IMPLEMENTATION_PLAN.md` status table.
 - Completed slice -> append an entry to `docs/SLICE_LOG.md`.
-- Route, prop, folder or script change -> `README.md`.
+- Route, prop, folder or script change -> `README.md`, in the same slice that makes the change. The
+  README is declared in that slice's file list so rule 1 still holds. Slice 6 keeps the full README
+  rewrite as final polish, so a slice may add to the README before that rewrite happens.

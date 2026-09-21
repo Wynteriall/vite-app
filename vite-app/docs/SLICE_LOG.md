@@ -6,7 +6,7 @@ Append-only. One entry per completed slice, newest last. Keep the status table i
 | --- | --- | --- | --- |
 | 0 | Docs and cline rules | Done | 3 |
 | 1 | Folders, routing skeleton, Navbar | Done | 9 |
-| 2 | Students page and StudentCard | Not started | - |
+| 2 | Students page and StudentCard | Done | 5 |
 | 3 | Courses page and CourseCard | Not started | - |
 | 4 | Home and About content | Not started | - |
 | 5 | Styling and responsive pass | Not started | - |
@@ -19,6 +19,8 @@ Append-only. One entry per completed slice, newest last. Keep the status table i
 
 Date: 2026-09-21
 Status: done
+
+Commit: 87db04c
 
 Files added:
 - `.clinerules/implementation-workflow.md`
@@ -60,6 +62,8 @@ Next: Slice 1, blocked on the styling decision and the router choice.
 
 Date: 2026-09-21
 Status: done
+
+Commit: 1af3224
 
 Files added (6):
 - `src/components/Navbar.jsx`
@@ -131,3 +135,88 @@ Deviations:
 Next: Slice 2 (`src/data/students.js`, `src/components/StudentCard.jsx`, `src/components/StudentCard.css`,
 `src/pages/Students.jsx`, `src/pages/Students.css`). Blocked on the rules contradiction above and on
 confirmation of the router choice.
+
+## Slice 2 - Students page and StudentCard
+
+Date: 2026-09-21
+Status: done
+
+Commit: filled in when the user approves the commit
+
+Files added (4):
+- `src/data/students.js`
+- `src/components/StudentCard.jsx`
+- `src/components/StudentCard.css`
+- `src/pages/Students.css`
+
+Files changed (5):
+- `src/pages/Students.jsx`
+- `README.md`
+- `.clinerules/implementation-workflow.md`
+- `docs/IMPLEMENTATION_PLAN.md`
+- `docs/SLICE_LOG.md`
+
+What changed and why:
+- `src/data/students.js` holds four records as plain data. They cannot live inside the page: the
+  eslint react-refresh rule rejects a file that exports a component and also exports plain data, and
+  the Home preview in Slice 4 will read the same records.
+- `StudentCard` renders one record as an `article` with a `dl` of label and value pairs, so the
+  fields read as data rather than as loose paragraphs and a screen reader announces each label with
+  its value. Every prop is destructured with a JSX default instead of `propTypes` or `defaultProps`,
+  both of which React 19 ignores. `gpa` prints through `Number(gpa).toFixed(2)` so a whole number
+  GPA still reads `2.00`.
+- `Students.jsx` maps the records once as `<StudentCard key={student.id} {...student} />`. The key is
+  the record id, and spreading means a new field is added to the data file only, never to the page.
+- `Students.css` owns one `.students-grid` rule built on `auto-fill` with a 280px minimum, so the
+  list reflows to a single column on narrow screens with no media query. A comment in the file notes
+  that Slice 5 should lift the rule into a shared grid once Home and Courses need the same layout.
+- `StudentCard.css` styles the card from the tokens already in `index.css` (`--surface`, `--border`,
+  `--radius`, `--shadow`, `--accent`) instead of hard-coded colours, stacks the label above the value
+  under 640px, and gives the mailto link the same `:focus-visible` outline as the navbar links.
+- `.clinerules` rule 5 was amended as agreed: README changes now land in the same slice as the route,
+  prop, folder or script change and are declared in that slice's file list, so rule 1 still holds.
+  This resolves the rule 1 versus rule 5 contradiction that the Slice 1 log flagged.
+- `README.md` was still the stock Vite template even though the repo link is the submission, so it
+  now documents the routes, scripts, folder layout, `StudentCard` props and the registered tooling.
+  It also states the honest limitation: the SPA fallback exists under `npm run dev` and
+  `npm run preview`, so a deep link works locally but would not from `file://` or from a static host
+  with no rewrite rule.
+
+Verified:
+- `node .\node_modules\eslint\bin\eslint.js .` -> exit code 0, no output.
+- `node .\node_modules\vite\bin\vite.js build` -> 36 modules transformed (up from 32), built in
+  400ms, `dist/assets/index-CtheKzQb.css` 3.26 kB, `dist/assets/index-CKYk6Ofn.js` 264.49 kB.
+- Built bundle inspected directly: the JS chunk contains all four student names, plus
+  `josefina.ramos@example.edu` and `BS Information Systems`, so the data module is genuinely reachable
+  from the page. The CSS chunk contains `.student-card`, `.students-grid`, `.student-card__row` and
+  `.student-card__id`, so the new rules survived the build.
+- `vite preview --port 5211 --strictPort` returned HTTP 200 for `/`, `/students`, `/courses`, `/about`
+  and `/nope`. This is the first check in the project against the production build rather than the dev
+  server, and it confirms the SPA fallback claim now written into the README. The server was stopped
+  and the port confirmed free.
+- The four new files, the changed `Students.jsx` and the new `README.md` contain zero non-ASCII bytes,
+  and the README has no carriage returns.
+- The four docs files touched here had a trailing newline added, which the plan and slice log had been
+  missing since Slice 0, so future diffs stop reporting "No newline at end of file".
+- `git status --porcelain` matched the declared file list exactly.
+
+Not verified:
+- No rendered card was ever seen in a browser. Lint, build and bundle inspection cannot prove that
+  four cards appear, that the grid reflows, or that the mailto links resolve.
+- No missing-key warning was observed live. The `key` is in the source, but the absence of a console
+  warning is a browser observation.
+- `/nope` answered 200 with the fallback document, so an unmatched URL currently renders the navbar
+  plus an empty `main`. Whether that blank page is acceptable is the open catch-all decision.
+
+Deviations:
+- `README.md` was not in Slice 2's originally declared file list. It was added with the user's
+  approval as part of the rule 5 amendment, because the new `src/data/` folder triggers rule 5.
+- The plan lists the README rewrite under Slice 6. That work is now largely done here, so Slice 6's
+  README item becomes a final read-through instead of a rewrite.
+- `Commit:` above is filled in only after the user approves the commit, the same order Slice 1 used,
+  which is why the hash lands in a later edit.
+
+Next: Slice 3 (`src/data/courses.js`, `src/components/CourseCard.jsx`, `src/components/CourseCard.css`,
+`src/pages/Courses.jsx`, `src/pages/Courses.css`). Blocked on commit approval for Slice 2. The working
+plan for the grid is to repeat the rule in `Courses.css` so each page owns its layout, then let Slice 5
+consolidate both into one shared grid once the Home page needs it too.

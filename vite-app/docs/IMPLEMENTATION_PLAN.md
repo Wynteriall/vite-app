@@ -125,7 +125,7 @@ comes from the record id, and the card destructures only the props it renders.
 | --- | --- | --- | --- |
 | 0 | Docs and cline rules | Done | Docs exist, `src/` untouched, lint clean |
 | 1 | Folders, routing skeleton, Navbar | Done | All four links change page and URL, active link highlighted, hard refresh on `/students` renders |
-| 2 | Students page and StudentCard | Not started | Four cards from `.map()`, no missing-key warning |
+| 2 | Students page and StudentCard | Done | Four cards from `.map()`, no missing-key warning |
 | 3 | Courses page and CourseCard | Not started | Four cards from the same component, no copy-paste |
 | 4 | Home and About content | Not started | Home reuses StudentCard and CourseCard, proving cross-page reuse |
 | 5 | Styling and responsive pass | Not started | Grids reflow at 640px, consistent spacing and focus states |
@@ -140,17 +140,26 @@ Slice 1 file list, declared in advance:
 - Delete `src/App.css`.
 - Verify with `npm run lint`, `npm run build`, then `npm run dev` and a click-through of every route.
 
+Slice 2 file list, declared in advance:
+
+- Add `src/data/students.js`, `src/components/StudentCard.jsx`, `src/components/StudentCard.css`,
+  `src/pages/Students.css`.
+- Change `src/pages/Students.jsx`, `README.md`, `.clinerules/implementation-workflow.md`,
+  `docs/IMPLEMENTATION_PLAN.md`, `docs/SLICE_LOG.md`.
+- No deletions. `README.md` is the same-slice doc update that amended rule 5 now requires.
+
 ## 8. Decisions pending
 
 | Item | Options | Recommendation | Status |
 | --- | --- | --- | --- |
 | Styling approach | Plain CSS / CSS Modules / Tailwind / hybrid | Plain CSS colocated per component | Decided (Slice 1) |
-| Router type | `BrowserRouter` / `HashRouter` | `HashRouter` if the lab is submitted as files or static-hosted, else `BrowserRouter` | Decided (Slice 1) as BrowserRouter, pending confirmation of submission method |
+| Router type | `BrowserRouter` / `HashRouter` | `HashRouter` if the lab is submitted as files or static-hosted, else `BrowserRouter` | Closed (Slice 2): submitted as a GitHub link and graded locally, so `BrowserRouter` stays. Deep links returned 200 under both `npm run dev` and `npm run preview`; revisit only if `dist/` is hosted without a rewrite rule |
 | Folder name | `components/` / `component/` | `components/`, the rubric uses the singular | Decided (Slice 1) |
 | Dead template files | Delete `App.css` and unused images / keep | Delete `App.css`, keep the images | Decided (Slice 1) |
-| Catch-all route | Add `NotFound` + `*` / skip | Add it and mark it as a bonus in the README | Open, scheduled for Slice 6 |
+| README update timing | Same slice as the change / one rewrite in Slice 6 | Same slice, so the README in the submitted repo is never stale; Slice 6 keeps the final read-through | Decided (Slice 2), rule 5 amended |
+| Catch-all route | Add `NotFound` + `*` / skip | Add it and mark it as a bonus in the README | Open, scheduled for Slice 6. Slice 2 confirmed `vite preview` answers 200 for `/nope`, so an unmatched URL currently renders the navbar and an empty `main` with no message |
 | Slice 7 route test | Zero-dependency SSR render / Vitest / skip | Skip unless a rubric mark depends on tests | Open, deferred |
-| Commit cadence | One commit per slice / a single commit at the end | One commit per slice, only after approval | Open, no commit made yet |
+| Commit cadence | One commit per slice / a single commit at the end | One commit per slice, only after approval | Decided: one commit per slice, executed for Slices 0 and 1 |
 
 ## 9. Verification strategy
 
@@ -171,3 +180,10 @@ This plan is the single source of truth for scope. A slice that needs to touch f
 declared list, or that wants to add anything the rubric does not ask for, stops and asks first.
 Operating rules live in `.clinerules/implementation-workflow.md`; slice history lives in
 `docs/SLICE_LOG.md`.
+
+## 11. Commit history
+
+| Slice | Commit | Message |
+| --- | --- | --- |
+| 0 | `87db04c` | docs: add implementation plan, slice log and cline rules |
+| 1 | `1af3224` | add: added routing skeleton, Navbar and four page stubs |
